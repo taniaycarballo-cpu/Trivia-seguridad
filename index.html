@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafío: Seguridad del Paciente</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: #0b141a; display: flex; justify-content: center; height: 100vh; }
+    .chat-container { width: 100%; max-width: 480px; background-color: #efeae2; display: flex; flex-direction: column; height: 100vh; position: relative; }
+    .header { background-color: #008069; color: #ffffff; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10; }
+    .avatar { width: 40px; height: 40px; background-color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .header-info h1 { font-size: 16px; font-weight: 600; }
+    .header-info p { font-size: 12px; color: #d1f4cc; }
+    .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: radial-gradient(#d1d7db 1px, transparent 1px); background-size: 16px 16px; }
+    .msg { max-width: 85%; padding: 8px 12px; border-radius: 8px; font-size: 14.5px; line-height: 1.4; position: relative; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+    .msg-bot { background-color: #ffffff; align-self: flex-start; border-top-left-radius: 0; color: #111b21; }
+    .msg-user { background-color: #d9fdd3; align-self: flex-end; border-top-right-radius: 0; color: #111b21; }
+    .time { font-size: 11px; color: #667781; text-align: right; margin-top: 4px; }
+    .footer-actions { padding: 12px; background-color: #f0f2f5; display: flex; gap: 10px; border-top: 1px solid #e9edef; }
+    .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .btn-true { background-color: #00a884; color: white; }
+    .btn-false { background-color: #ea4335; color: white; }
+    .btn-share { background-color: #25d366; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="header">
+    <div class="avatar">🏥</div>
+    <div class="header-info">
+      <h1>Seguridad del Paciente</h1>
+      <p id="status-text">en línea</p>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chat"></div>
+
+  <div class="footer-actions" id="action-bar">
+    <button class="btn btn-true" id="btn-v" onclick="responder(true)">✅ VERDADERO</button>
+    <button class="btn btn-false" id="btn-f" onclick="responder(false)">❌ FALSO</button>
+  </div>
+</div>
+
+<script>
+  const preguntas = [
+    { q: "1. ¿La seguridad del paciente es el conjunto de acciones destinadas a reducir a un mínimo aceptable el riesgo de sufrir un daño innecesario durante la atención?", r: true, exp: "Exacto. Busca evitar riesgos y eventos adversos evitables." },
+    { q: "2. ¿Los cinco correctos de la administración de medicación son: Paciente, Medicamento, Dosis, Vía y Hora correcta?", r: true, exp: "¡Correcto! Son la regla de oro para la seguridad en fármacos." },
+    { q: "3. ¿La pulsera identificatoria debe colocarse únicamente si el paciente ingresa a cirugía de urgencia?", r: false, exp: "Falso. Debe colocarse al momento del ingreso o admisión a todos los pacientes." },
+    { q: "4. ¿Mantener la cama baja, frenada, con barandas arriba y el timbre al alcance previene caídas?", r: true, exp: "¡Así es! Son medidas ambientales básicas para evitar accidentes." },
+    { q: "5. ¿Los MAR son medicamentos de alta rotación que se recetan frecuentemente sin riesgo?", r: false, exp: "Falso. Son Medicamentos de Alto Riesgo, con mayor probabilidad de causar daño grave si se usan mal." },
+    { q: "6. ¿Los medicamentos LASA son aquellos que se parecen físicamente o tienen nombres fonéticamente similares?", r: true, exp: "¡Exacto! (Look-Alike, Sound-Alike) y requieren identificación especial." },
+    { q: "7. ¿Ante un evento adverso lo prioritario es ocultar lo ocurrido para evitar sanciones?", r: false, exp: "Falso. Primero se atiende al paciente y luego se notifica para aprender del error y corregir barreras." },
+    { q: "8. ¿Un evento adverso es un daño o lesión ocasionado por el proceso de atención y no por la enfermedad de base?", r: true, exp: "¡Correcto! Esa es la definición oficial." },
+    { q: "9. ¿La medida más segura en quirófano es la Lista de Verificación Quirúrgica (Checklist) de la OMS?", r: true, exp: "¡Totalmente! Permite chequear antes, durante y después del acto quirúrgico." },
+    { q: "10. ¿La escala de Braden se utiliza para medir el nivel de sedación o dolor postoperatorio?", r: false, exp: "Falso. La escala de Braden evalúa el riesgo de desarrollar Úlceras por Presión (UPP)." }
+  ];
+
+  let actual = 0;
+  let puntos = 0;
+  const chat = document.getElementById('chat');
+
+  function getHora() {
+    const d = new Date();
+    return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+  }
+
+  function agregarMensaje(texto, tipo) {
+    const div = document.createElement('div');
+    div.className = `msg ${tipo === 'bot' ? 'msg-bot' : 'msg-user'}`;
+    div.innerHTML = `${texto}<div class="time">${getHora()}</div>`;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function enviarPregunta() {
+    if (actual < preguntas.length) {
+      document.getElementById('status-text').innerText = "escribiendo...";
+      setTimeout(() => {
+        document.getElementById('status-text').innerText = "en línea";
+        agregarMensaje(`<b>Pregunta ${actual + 1}/10:</b><br>${preguntas[actual].q}`, 'bot');
+        document.getElementById('btn-v').disabled = false;
+        document.getElementById('btn-f').disabled = false;
+      }, 600);
+    } else {
+      finalizar();
+    }
+  }
+
+  function responder(valor) {
+    document.getElementById('btn-v').disabled = true;
+    document.getElementById('btn-f').disabled = true;
+    agregarMensaje(valor ? '✅ Verdadero' : '❌ Falso', 'user');
+
+    const acierto = valor === preguntas[actual].r;
+    if (acierto) puntos++;
+
+    setTimeout(() => {
+      const feedback = acierto 
+        ? `🎉 <b>¡Correcto!</b><br>${preguntas[actual].exp}`
+        : `⚠️ <b>Incorrecto.</b><br>${preguntas[actual].exp}`;
+      agregarMensaje(feedback, 'bot');
+      actual++;
+      setTimeout(enviarPregunta, 1000);
+    }, 600);
+  }
+
+  function finalizar() {
+    document.getElementById('action-bar').style.display = 'none';
+    let resumen = `🏁 <b>¡Fin del juego!</b><br><br>Obtuviste <b>${puntos} de 10</b> puntos correctos.`;
+    if (puntos >= 9) resumen += "<br>🌟 ¡Excelente nivel en Seguridad del Paciente!";
+    else if (puntos >= 6) resumen += "<br>👍 ¡Buen trabajo, sigamos reforzando los protocolos!";
+    else resumen += "<br>📚 ¡A repasar las medidas de seguridad!";
+
+    const msjWsp = encodeURIComponent(`¡Hice la trivia de Seguridad del Paciente y saqué ${puntos}/10 puntos! ¿Te animás a superarme?`);
+    resumen += `<br><a href="https://api.whatsapp.com/send?text=${msjWsp}" target="_blank"><button class="btn-share">📲 Compartir mi resultado por WhatsApp</button></a>`;
+
+    agregarMensaje(resumen, 'bot');
+  }
+
+  // Inicio automático
+  agregarMensaje("👋 ¡Hola! Te doy la bienvenida a la <b>Trivia de Seguridad del Paciente</b>.<br><br>Lee cada afirmación y responde si es <b>Verdadera</b> o <b>Falsa</b>.", 'bot');
+  setTimeout(enviarPregunta, 1200);
+</script>
+</body>
+</html>
