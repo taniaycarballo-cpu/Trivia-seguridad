@@ -2,29 +2,28 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Comité de Calidad y Seguridad del Paciente - Hospital Córdoba</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: #0b141a; display: flex; justify-content: center; height: 100vh; }
-    .chat-container { width: 100%; max-width: 480px; background-color: #efeae2; display: flex; flex-direction: column; height: 100vh; position: relative; }
-    .header { background-color: #005f56; color: #ffffff; padding: 12px 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); z-index: 10; }
-    .avatar { width: 42px; height: 42px; background-color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 2px solid #25d366; }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .avatar-icon { font-size: 22px; }
-    .header-info { display: flex; flex-direction: column; overflow: hidden; }
-    .header-info h1 { font-size: 13px; font-weight: 700; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.3px; }
-    .header-info p { font-size: 11px; color: #a3e9d2; margin-top: 2px; }
-    .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: radial-gradient(#d1d7db 1px, transparent 1px); background-size: 16px 16px; }
-    .msg { max-width: 85%; padding: 8px 12px; border-radius: 8px; font-size: 14.5px; line-height: 1.4; position: relative; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+    html, body { height: 100%; height: 100dvh; overflow: hidden; background-color: #0b141a; }
+    body { display: flex; justify-content: center; }
+    .chat-container { width: 100%; max-width: 480px; background-color: #efeae2; display: flex; flex-direction: column; height: 100%; height: 100dvh; }
+    .header { background-color: #005f56; color: #ffffff; padding: 10px 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); flex-shrink: 0; }
+    .avatar { width: 38px; height: 38px; background-color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 2px solid #25d366; font-size: 20px; }
+    .header-info { display: flex; flex-direction: column; }
+    .header-info h1 { font-size: 12px; font-weight: 700; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.3px; }
+    .header-info p { font-size: 11px; color: #a3e9d2; margin-top: 1px; }
+    .chat-messages { flex: 1; min-height: 0; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: radial-gradient(#d1d7db 1px, transparent 1px); background-size: 16px 16px; -webkit-overflow-scrolling: touch; }
+    .msg { max-width: 88%; padding: 8px 12px; border-radius: 8px; font-size: 14px; line-height: 1.35; position: relative; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
     .msg-bot { background-color: #ffffff; align-self: flex-start; border-top-left-radius: 0; color: #111b21; }
     .msg-user { background-color: #d9fdd3; align-self: flex-end; border-top-right-radius: 0; color: #111b21; }
-    .time { font-size: 11px; color: #667781; text-align: right; margin-top: 4px; }
-    .footer-actions { padding: 12px; background-color: #f0f2f5; display: flex; gap: 10px; border-top: 1px solid #e9edef; }
-    .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .time { font-size: 10px; color: #667781; text-align: right; margin-top: 4px; }
+    .footer-actions { padding: 10px 14px; background-color: #f0f2f5; display: flex; gap: 10px; border-top: 1px solid #e9edef; flex-shrink: 0; }
+    .btn { flex: 1; padding: 13px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
     .btn-true { background-color: #00a884; color: white; }
     .btn-false { background-color: #ea4335; color: white; }
-    .btn-share { background-color: #25d366; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    .btn-share { background-color: #25d366; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; margin-top: 10px; cursor: pointer; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
@@ -32,10 +31,7 @@
 
 <div class="chat-container">
   <div class="header">
-    <div class="avatar" id="hospital-logo">
-      <!-- Si tienes una imagen del logo subida o un link público, reemplaza este span por: <img src="URL_DEL_LOGO" alt="Logo"> -->
-      <span class="avatar-icon">🏥</span>
-    </div>
+    <div class="avatar">🏥</div>
     <div class="header-info">
       <h1>Comité de Calidad y Seguridad del Paciente<br><span style="color:#d4f8e8;">Hospital Córdoba</span></h1>
       <p id="status-text">en línea</p>
@@ -73,12 +69,18 @@
     return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
   }
 
+  function scrollAbajo() {
+    setTimeout(() => {
+      chat.scrollTop = chat.scrollHeight;
+    }, 50);
+  }
+
   function agregarMensaje(texto, tipo) {
     const div = document.createElement('div');
     div.className = `msg ${tipo === 'bot' ? 'msg-bot' : 'msg-user'}`;
     div.innerHTML = `${texto}<div class="time">${getHora()}</div>`;
     chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
+    scrollAbajo();
   }
 
   function enviarPregunta() {
@@ -89,7 +91,7 @@
         agregarMensaje(`<b>Pregunta ${actual + 1}/10:</b><br>${preguntas[actual].q}`, 'bot');
         document.getElementById('btn-v').disabled = false;
         document.getElementById('btn-f').disabled = false;
-      }, 600);
+      }, 500);
     } else {
       finalizar();
     }
@@ -109,25 +111,25 @@
         : `⚠️ <b>Incorrecto.</b><br>${preguntas[actual].exp}`;
       agregarMensaje(feedback, 'bot');
       actual++;
-      setTimeout(enviarPregunta, 1000);
-    }, 600);
+      setTimeout(enviarPregunta, 850);
+    }, 500);
   }
 
   function finalizar() {
     document.getElementById('action-bar').style.display = 'none';
-    let resumen = `🏁 <b>¡Fin de la trivia!</b><br><br>Obtuviste <b>${puntos} de 10</b> puntos correctos.`;
-    if (puntos >= 9) resumen += "<br>🌟 ¡Excelente desempeño en protocolos de seguridad institucional!";
-    else if (puntos >= 6) resumen += "<br>👍 ¡Buen trabajo! Sigamos fortaleciendo las prácticas seguras.";
-    else resumen += "<br>📚 ¡A seguir repasando las medidas institucionales!";
+    let resumen = `🏁 <b>¡Fin del juego!</b><br><br>Obtuviste <b>${puntos} de 10</b> respuestas correctas.`;
+    if (puntos >= 9) resumen += "<br>🌟 ¡Excelente! Demostraste un gran compromiso con la seguridad del paciente.";
+    else if (puntos >= 6) resumen += "<br>👍 ¡Muy buen puntaje! El trabajo en equipo y el repaso continuo salvan vidas.";
+    else resumen += "<br>💡 ¡Gracias por sumarte! Cada oportunidad es ideal para seguir aprendiendo juntos.";
 
-    const msjWsp = encodeURIComponent(`¡Completé la trivia del Comité de Calidad y Seguridad del Paciente (Hospital Córdoba) con ${puntos}/10 puntos!`);
-    resumen += `<br><a href="https://api.whatsapp.com/send?text=${msjWsp}" target="_blank"><button class="btn-share">📲 Compartir resultado</button></a>`;
+    const msjWsp = encodeURIComponent(`¡Participé en la trivia del Día de la Seguridad del Paciente (Hospital Córdoba) y saqué ${puntos}/10 puntos! ¿Te animás a jugarla?`);
+    resumen += `<br><a href="https://api.whatsapp.com/send?text=${msjWsp}" target="_blank"><button class="btn-share">📲 Compartir en WhatsApp</button></a>`;
 
     agregarMensaje(resumen, 'bot');
   }
 
-  // Inicio institucional
-  agregarMensaje("👋 ¡Hola! Te damos la bienvenida a la autoevaluación del <b>Comité de Calidad y Seguridad del Paciente - Hospital Córdoba</b>.<br><br>Responde <b>Verdadero</b> o <b>Falso</b> para poner a prueba tus conocimientos.", 'bot');
+  // Mensaje de apertura por el Día de la Seguridad del Paciente
+  agregarMensaje("👋 ¡Hola! En el marco del <b>Día Mundial de la Seguridad del Paciente</b>, desde el Comité del <b>Hospital Córdoba</b> te invitamos a reforzar conocimientos de una forma dinámica.<br><br>¡Respondé <b>Verdadero</b> o <b>Falso</b> a los 10 desafíos!", 'bot');
   setTimeout(enviarPregunta, 1200);
 </script>
 </body>
